@@ -6,10 +6,10 @@ def list_files(folder, pattern):
     return [f for f in os.listdir(folder) if pattern.lower() in f.lower()]
 
 def get_user_selection(options, prompt):
+    print(Fore.CYAN + prompt)  # heading first
     for i, opt in enumerate(options, 1):
         print(f" {i}) {opt}")
     print(" 0) Back")
-    print(Fore.CYAN + prompt)
     try:
         index = int(input("> ")) - 1
         if index == -1:
