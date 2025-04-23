@@ -76,3 +76,12 @@ def apply_container_fixes(zen_path, fix_map):
         f.writelines(out_lines)
 
     log(Fore.GREEN + f"✅ Rewritten {basename} with replacements → {out_path}")
+
+def check_all_containers():
+    zens = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith(".zen")]
+    if not zens:
+        log(Fore.RED + "❌ No ZEN files in input folder.")
+        return
+    for z in zens:
+        log(Fore.CYAN + f"🔍 Checking: {z}")
+        validate_container_entries(os.path.join(INPUT_FOLDER, z))
