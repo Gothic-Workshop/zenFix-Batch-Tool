@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <config>
     <scripts src="X:/path/to/gothic/scripts/content/items" />
+
+    <gothiczen path="X:/path/to/gothiczen.exe" />
 </config>

@@ -25,3 +25,14 @@ def load_script_path():
     except ET.ParseError as e:
         print(Fore.RED + f"❌ XML parse error: {e}")
     return None
+
+def load_gothiczen_path():
+    import xml.etree.ElementTree as ET
+    CONFIG_PATH = "config.xml"
+    if not os.path.exists(CONFIG_PATH):
+        return ""
+    tree = ET.parse(CONFIG_PATH)
+    root = tree.getroot()
+    tool = root.find("gothiczen")
+    return tool.get("path") if (tool is not None and tool.get("path")) else ""
+
