@@ -13,4 +13,4 @@ def print_title():
     #print(Fore.CYAN + "zenFix Batch Tool - Version 3")
     f = Figlet(font='slant')  # You can also try 'big', 'block', 'doom', etc.
     print(Fore.CYAN + f.renderText(" zenFix"))
-    print(Fore.YELLOW + "Batch Tool - Version 1")
+    print(Fore.YELLOW + "Batch Tool - Version 2")

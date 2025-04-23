@@ -1,17 +1,22 @@
 import os
 from colorama import init, Fore
 from pyfiglet import Figlet
+
 from utils.config_loader import load_script_path
 from utils.item_validator import scan_valid_items
 from utils.file_utils import list_files, get_user_selection
 from utils.log_utils import log, log_action, save_log
 from utils.menu_utils import clear_screen, pause, print_title
+from utils.run_action import run_action
+
 from modules.batch_fix import batch_fix
-from modules.check_containers import validate_container_entries
-from modules.check_containers_multi import check_all_containers
+from modules.check_chest_visuals import check_chest_visuals_single
+from modules.check_containers import validate_container_entries, check_all_containers
 from modules.scan_broken_instances import scan_broken_instances
 from modules.prompt_replacements import prompt_replacements, load_fix_map
-from modules.fix_blocks import apply_fix
+from modules.fix_blocks import apply_fix, fix_selected_block, fix_all_blocks_multi
+from modules.convert_zen import convert_zen
+
 
 FOLDERS = {
     "input": "zenfix_input",
@@ -38,19 +43,25 @@ def show_main_menu():
     print(" [2] Scan Broken Instances")
     print(" [3] Scan Broken Instances (multi)")
     print(" [4] Prompt Replacement")
-    print(" [5] Prompt Replacement (multi)")
+    print(" [5] Prompt Replacement (multi)\n")
+
     print(" [6] Fix Specific Blocks")
     print(" [7] Fix Specific Blocks (multi)")
     print(" [8] Fix All Blocks")
-    print(" [9] Fix All Blocks (multi)\n")
+    print(" [9] Fix All Blocks (multi)")
+    print(" [10] Batch Fix\n")
 
-    print(" [10] Batch Fix")
     print(" [11] Check Containers")
-    print(" [12] Check Containers (multi)\n")
+    print(" [12] Check Containers (multi)")
+    print(" [13] Check Chest Visuals\n")
 
-    print(Fore.LIGHTYELLOW_EX + " [13] Check Item Validation")
+    print(" [14] Convert ZEN between Gothic versions\n")
+
+    print(Fore.LIGHTYELLOW_EX + " [15] Validate Scripts")
 
 def main():
+    os.system("title zenFix Batch Tool")
+
     ensure_folders()
     script_path = load_script_path()
     if script_path:
@@ -69,76 +80,100 @@ def main():
         if choice == 0:
             break
         elif choice == 1:
-            print(Fore.CYAN + "\nzenFix Batch Tool – Utility for batch fixing broken item instances and containers in Gothic .ZEN files. Shamelessly written with ChatGPT by DamianQ.\n")
+            clear_screen()
+            print_title()
+            print(Fore.CYAN + "\nzenFix Batch Tool – Utility for batch fixing broken item instances and containers in Gothic .ZEN files.\nShamelessly written with ChatGPT by DamianQ.")
+            print(Fore.BLUE + "\n\nGitHub Repo: https://github.com/Gothic-Workshop/zenFix-Batch-Tool\n\nGothicZEN made by withmorten")
         elif choice == 2:
-            files = list_files(FOLDERS["input"], ".zen")
-            if not files:
-                log(Fore.RED + "❌ No ZEN files.")
-            else:
-                selected = get_user_selection(files, "Choose ZEN file:")
-                if selected:
+            run_action(lambda: (
+                lambda files=list_files(FOLDERS["input"], ".zen"):
                     scan_broken_instances(os.path.join(FOLDERS["input"], selected), FOLDERS["instances"])
+                    if (selected := get_user_selection(files, "Choose ZEN file:")) else None
+            )())
+
         elif choice == 3:
-            for file in list_files(FOLDERS["input"], ".zen"):
+            run_action(lambda: [
                 scan_broken_instances(os.path.join(FOLDERS["input"], file), FOLDERS["instances"])
+                for file in list_files(FOLDERS["input"], ".zen")
+            ])
+
         elif choice == 4:
-            files = list_files(FOLDERS["instances"], "_instanceList.txt")
-            if not files:
-                log(Fore.RED + "❌ No instanceList files.")
-            else:
-                selected = get_user_selection(files, "Choose file:")
-                if selected:
-                    items = open(os.path.join(FOLDERS["instances"], selected), encoding='utf-8').read().splitlines()
-                    prompt_replacements(items, os.path.join(FOLDERS["instances"], selected.replace("_instanceList", "_instanceFix")))
+            run_action(lambda: (
+                lambda files=list_files(FOLDERS["instances"], "_instanceList.txt"):
+                    prompt_replacements(
+                        open(os.path.join(FOLDERS["instances"], selected), encoding='utf-8').read().splitlines(),
+                        os.path.join(FOLDERS["instances"], selected.replace("_instanceList", "_instanceFix"))
+                    )
+                    if (selected := get_user_selection(files, "Choose file:")) else None
+            )())
+
         elif choice == 5:
-            for file in list_files(FOLDERS["instances"], "_instanceList.txt"):
-                items = open(os.path.join(FOLDERS["instances"], file), encoding='utf-8').read().splitlines()
-                prompt_replacements(items, os.path.join(FOLDERS["instances"], file.replace("_instanceList", "_instanceFix")))
+            run_action(lambda: [
+                prompt_replacements(
+                    open(os.path.join(FOLDERS["instances"], file), encoding='utf-8').read().splitlines(),
+                    os.path.join(FOLDERS["instances"], file.replace("_instanceList", "_instanceFix"))
+                )
+                for file in list_files(FOLDERS["instances"], "_instanceList.txt")
+            ])
+
         elif choice == 6:
-            files = list_files(FOLDERS["instances"], "_instanceFix.txt")
-            if not files:
-                log(Fore.RED + "❌ No fix files.")
-            else:
-                selected = get_user_selection(files, "Choose fix file:")
-                if selected:
-                    fix_map = load_fix_map(os.path.join(FOLDERS["instances"], selected))
-                    inst = input("Enter instance name: ").strip()
-                    if inst in fix_map:
-                        apply_fix(os.path.join(FOLDERS["input"], selected.split("_instanceFix")[0] + ".zen"), {inst: fix_map[inst]}, inst)
+            run_action(lambda: (
+                lambda files=list_files(FOLDERS["instances"], "_instanceFix.txt"):
+                    (
+                        lambda fix_map=load_fix_map(os.path.join(FOLDERS["instances"], selected)):
+                            (inst := input("Enter instance name: ").strip()) and
+                            apply_fix(
+                                os.path.join(FOLDERS["input"], selected.split("_instanceFix")[0] + ".zen"),
+                                {inst: fix_map[inst]},
+                                inst
+                            )
+                        if (selected := get_user_selection(files, "Choose fix file:")) else None
+                    )()
+            )())
+
         elif choice == 7:
-            inst = input("Enter instance name: ").strip()
-            for ff in list_files(FOLDERS["instances"], "_instanceFix.txt"):
-                fix_map = load_fix_map(os.path.join(FOLDERS["instances"], ff))
-                if inst in fix_map:
-                    apply_fix(os.path.join(FOLDERS["input"], ff.split("_instanceFix")[0] + ".zen"), {inst: fix_map[inst]}, inst)
+            run_action(lambda: (
+                (inst := input("Enter instance name: ").strip()) and [
+                    apply_fix(
+                        os.path.join(FOLDERS["input"], ff.split("_instanceFix")[0] + ".zen"),
+                        {inst: fix_map[inst]},
+                        inst
+                    )
+                    for ff in list_files(FOLDERS["instances"], "_instanceFix.txt")
+                    if (fix_map := load_fix_map(os.path.join(FOLDERS["instances"], ff))) and inst in fix_map
+                ]
+            ))
+
         elif choice == 8:
-            zens = list_files(FOLDERS["input"], ".zen")
-            selected = get_user_selection(zens, "Choose ZEN:")
-            if selected:
-                name = selected.rsplit(".", 1)[0]
-                fix = name + "_instanceFix.txt"
-                if fix in list_files(FOLDERS["instances"], "_instanceFix.txt"):
-                    fix_map = load_fix_map(os.path.join(FOLDERS["instances"], fix))
-                    apply_fix(os.path.join(FOLDERS["input"], selected), fix_map, "InstanceFixed")
+            run_action(lambda: fix_selected_block())
+
         elif choice == 9:
-            for file in list_files(FOLDERS["instances"], "_instanceFix.txt"):
-                name = file.split("_instanceFix")[0] + ".zen"
-                if name in os.listdir(FOLDERS["input"]):
-                    fix_map = load_fix_map(os.path.join(FOLDERS["instances"], file))
-                    apply_fix(os.path.join(FOLDERS["input"], name), fix_map, "InstanceFixed")
+            run_action(fix_all_blocks_multi)
+
         elif choice == 10:
-            batch_fix()
+            run_action(batch_fix)
+
         elif choice == 11:
-            files = list_files(FOLDERS["input"], ".zen")
-            selected = get_user_selection(files, "Choose ZEN file to scan:")
-            if selected:
-                validate_container_entries(os.path.join(FOLDERS["input"], selected))
+            run_action(lambda: (
+                lambda files=list_files(FOLDERS["input"], ".zen"):
+                    validate_container_entries(os.path.join(FOLDERS["input"], selected))
+                if (selected := get_user_selection(files, "Choose ZEN file to scan:")) else None
+            )())
+
         elif choice == 12:
-            check_all_containers()
+            run_action(check_all_containers)
+
         elif choice == 13:
+            run_action(check_chest_visuals_single)
+
+        elif choice == 14:
+            run_action(convert_zen)
+
+        elif choice == 15:
             print(Fore.BLUE + f"🧭 Using script path: {script_path}")
             from utils.item_validator import VALID_ITEMS
             print(Fore.MAGENTA + f"🔎 Valid items loaded: {len(VALID_ITEMS)}")
+
         pause()
 
     save_log()
