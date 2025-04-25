@@ -1,5 +1,5 @@
 # zenFix-Batch-Tool
-Python tool (written using ChatGPT) which for now is used to fix oCItem vobs with missing/broken instances. You can also check containers and cross-reference the instances with your scripts.
+zenFix is a powerful batch utility tool (written using ChatGPT in Python) for inspecting and fixing broken or inconsistent data in Gothic .ZEN world files. It automates tedious cleanup tasks, improves modding workflows, and ensures compatibility with in-game mechanics.
 
 # How to use
 - Make sure you have Python installed
@@ -9,7 +9,7 @@ Python tool (written using ChatGPT) which for now is used to fix oCItem vobs wit
 - Use the tool to your needs
 
 ## Config
-Other than reading the game's scripts, zenFix can also convert ZENs between game releases if you have downloaded [GothicZEN](https://forum.worldofplayers.de/forum/threads/1537414-Release-GothicZEN-a-commandline-tool-to-convert-compiled-ZENs-between-Gothic-versions) program first.
+Other than reading the [game's scripts](https://github.com/VaanaCZ/gothic-2-addon-scripts/tree/Unified-DE/_work/Data/Scripts), zenFix can also convert ZENs between game releases if you have downloaded [GothicZEN](https://forum.worldofplayers.de/forum/threads/1537414-Release-GothicZEN-a-commandline-tool-to-convert-compiled-ZENs-between-Gothic-versions) program first.
 
 Here is an example of `config.xml`:
 ```xml
