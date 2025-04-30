@@ -28,11 +28,8 @@ Check all broken oCItem blocks in the ZEN file (or files) and store them in `zen
 ## Prompt Replacement
 Read the broken instances for chosen ZEN (or all) and write replacement for them, then store them in `zenfix_instances`.
 
-## Fix Specific Blocks
-Choose specific instance blocks for chosen ZEN (or all) and fix them with the replacements done in Prompt Replacement.
-
-## Fix All Blocks
-Fix all instance blocks for chosen ZEN (or all) with the replacements done in Prompt Replacement.
+## Fix Blocks
+Fix instance blocks for chosen ZEN (or all) with the replacements done in Prompt Replacement.
 
 ## Batch Fix
 Do all the above for every ZEN file in `zenfix_input` in one go.
