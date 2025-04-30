@@ -14,7 +14,7 @@ from modules.check_chest_visuals import check_chest_visuals_single
 from modules.check_containers import validate_container_entries, check_all_containers
 from modules.scan_broken_instances import scan_broken_instances
 from modules.prompt_replacements import prompt_replacements, load_fix_map
-from modules.fix_blocks import apply_fix
+from modules.fix_blocks import apply_fix, fix_selected_block, fix_all_blocks_multi
 from modules.convert_zen import convert_zen
 
 
@@ -145,29 +145,10 @@ def main():
             ))
 
         elif choice == 8:
-            run_action(lambda: (
-                lambda zens=list_files(FOLDERS["input"], ".zen"):
-                    (
-                        lambda name=selected.rsplit(".", 1)[0],
-                            fix=name + "_instanceFix.txt":
-                            (
-                                fix_map := load_fix_map(os.path.join(FOLDERS["instances"], fix))
-                            ) and apply_fix(os.path.join(FOLDERS["input"], selected), fix_map, "InstanceFixed")
-                        if fix in list_files(FOLDERS["instances"], "_instanceFix.txt") else None
-                    )()
-                if (selected := get_user_selection(zens, "Choose ZEN:")) else None
-            )())
+            run_action(lambda: fix_selected_block())
 
         elif choice == 9:
-            run_action(lambda: [
-                apply_fix(
-                    os.path.join(FOLDERS["input"], name := file.split("_instanceFix")[0] + ".zen"),
-                    load_fix_map(os.path.join(FOLDERS["instances"], file)),
-                    "InstanceFixed"
-                )
-                for file in list_files(FOLDERS["instances"], "_instanceFix.txt")
-                if name in os.listdir(FOLDERS["input"])
-            ])
+            run_action(fix_all_blocks_multi)
 
         elif choice == 10:
             run_action(batch_fix)
