@@ -29,7 +29,7 @@ def validate_container_entries(zen_path):
         if "contains=string:" in line:
             items = parse_contains_line(line)
             for item in items:
-                base_item = item.split(":")[0]
+                base_item = item.split(":", 1)[0]
                 if not validate_item(base_item):
                     invalid_items[base_item] = None
 
@@ -69,8 +69,8 @@ def apply_container_fixes(zen_path, fix_map):
             tokens = [x.strip() for x in raw_items.split(",") if x.strip()]
             replaced = []
             for token in tokens:
-                base = token.split(":")[0]
-                suffix = ":" + token.split(":")[1] if ":" in token else ""
+                base, suffix = (token.split(":", 1) + [""])[:2]
+                suffix = f":{suffix}" if suffix else ""
                 if base in fix_map:
                     replaced.append(fix_map[base] + suffix)
                 else:
