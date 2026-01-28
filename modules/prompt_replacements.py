@@ -51,6 +51,10 @@ def load_fix_map(path):
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             if '->' in line:
-                k, v = line.strip().split('->')
-                fix_map[k.strip()] = v.strip()
+                k, v = line.strip().split('->', 1)
+                k = k.strip()
+                v = v.strip()
+                if not k or not v:
+                    continue
+                fix_map[k] = v
     return fix_map
