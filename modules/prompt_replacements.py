@@ -7,7 +7,7 @@ from utils.fix_suggestions import load_fix_history, suggest_fix, update_fix_hist
 def prompt_replacements(broken_items, output_path):
     if not broken_items:
         log(Fore.YELLOW + "⚠️ No broken instances in list.")
-        return
+        return {}
 
     fix_map = {}
     history = load_fix_history()
@@ -44,6 +44,7 @@ def prompt_replacements(broken_items, output_path):
             f.write(f"{k} -> {v}\n")
 
     log(Fore.GREEN + f"✅ Fix map saved: {output_path}")
+    return fix_map
 
 def load_fix_map(path):
     fix_map = {}

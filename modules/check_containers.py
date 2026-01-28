@@ -42,9 +42,15 @@ def validate_container_entries(zen_path):
     log(Fore.GREEN + f"📄 Saved list to: {list_path}")
 
     fix_map = prompt_replacements(sorted(invalid_items.keys()), fix_path)
+    if not fix_map:
+        log(Fore.YELLOW + f"⚠️ No replacements provided for {basename}, skipping.")
+        return
     apply_container_fixes(zen_path, fix_map)
 
 def apply_container_fixes(zen_path, fix_map):
+    if not fix_map:
+        log(Fore.YELLOW + "⚠️ No fixes to apply, skipping rewrite.")
+        return
     basename = os.path.basename(zen_path).rsplit(".", 1)[0]
     out_path = os.path.join(OUTPUT_FOLDER, f"{basename}_ContainersFixed.zen")
 
