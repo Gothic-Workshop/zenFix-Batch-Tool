@@ -1,47 +1,100 @@
 # zenFix-Batch-Tool
-zenFix is a powerful batch utility tool (written using ChatGPT in Python) for inspecting and fixing broken or inconsistent data in Gothic .ZEN world files. It automates tedious cleanup tasks, improves modding workflows, and ensures compatibility with in-game mechanics.
 
-# How to use
-- Make sure you have Python installed
-- Run commands `pip install pyfiglet` and `pip install colorama`
-- Run `zenFix_main.py`
-- Throw UNCOMPILED ZEN into `zenfix_input`
-- Use the tool to your needs
+`zenFix` is a batch utility for inspecting and fixing broken or inconsistent data in Gothic `.ZEN` world files.
+It helps with routine modding cleanup: scanning invalid item instances, preparing replacements, applying fixes, validating containers, and converting ZEN files between game versions.
 
-## Config
-Other than reading the [game's scripts](https://github.com/VaanaCZ/gothic-2-addon-scripts/tree/Unified-DE/_work/Data/Scripts), zenFix can also convert ZENs between game releases if you have downloaded [GothicZEN](https://forum.worldofplayers.de/forum/threads/1537414-Release-GothicZEN-a-commandline-tool-to-convert-compiled-ZENs-between-Gothic-versions) program first.
+## Requirements
 
-Here is an example of `config.xml`:
+- Python 3.10+ recommended
+- Dependencies:
+  - `pyfiglet`
+  - `colorama`
+
+Install dependencies:
+
+```bash
+pip install pyfiglet colorama
+```
+
+## Quick start
+
+1. Run `python zenFix_main.py`.
+2. Put **uncompiled** `.ZEN` files into `zenfix_input`.
+3. Use the menu options to scan, generate replacements, and apply fixes.
+4. Collect outputs from `zenfix_output` and generated fix/list files from `zenfix_instances`.
+
+## Generated folders
+
+The tool auto-creates these folders on startup:
+
+- `zenfix_input` – source ZEN files
+- `zenfix_output` – processed and converted output files
+- `zenfix_instances` – broken instance lists and replacement maps
+- `zenfix_broken` – auxiliary files for broken data workflows
+- `zenfix_log` – action logs
+
+## Feature overview (all menu actions)
+
+### Info and setup
+
+- **About**
+  - Shows project information and repository link.
+- **Validate Scripts**
+  - Debug/helper action to confirm script path loading and how many valid item instances are currently available.
+
+### Instance discovery and replacement mapping
+
+- **Scan Broken Instances (single ZEN / all ZENs)**
+  - Scans `oCItem` blocks and writes broken instance names into `*_instanceList.txt` files in `zenfix_instances`.
+- **Prompt Replacements (single list / all lists)**
+  - Opens previously generated `*_instanceList.txt`, asks for replacements, and writes `*_instanceFix.txt` maps.
+
+### Fixing workflows
+
+- **Fix Specific Instance (single ZEN / all ZENs)**
+  - Applies one chosen replacement entry from fix maps.
+- **Fix All Blocks (single ZEN / all ZENs)**
+  - Applies all replacements from available `*_instanceFix.txt` files.
+- **Batch Fix**
+  - End-to-end flow: scans all ZENs, prompts replacements for all found broken instances, then applies fixes across files.
+
+### Container and visual validation
+
+- **Check Containers (single ZEN / all ZENs)**
+  - Validates `contains=string:` entries, cross-checks instances against loaded scripts, prompts fixes, and rewrites corrected files.
+- **Check Chest Visuals**
+  - Detects chest visual/lock mismatches and missing lock/key data that can make containers unopenable.
+- **Count zCVob Visual Usage**
+  - Counts `zCVob` `visual=string:` usage where `showVisual=1`, with optional visual-name filtering, and writes a report to `zenfix_output`.
+
+### Conversion
+
+- **Convert ZEN between Gothic versions**
+  - Uses GothicZEN to convert compiled ZEN files between Gothic versions.
+
+## Config (`config.xml`)
+
+The tool reads paths from `config.xml`:
+
+- `scripts src="..."` for Daedalus script item validation.
+- `gothiczen path="..."` for ZEN conversion support.
+
+Example:
+
 ```xml
 <config>
-	<scripts src="D:/Gothic Scripts/gothic-2-addon-scripts-Unified-EN/_Work/Data/Scripts/Content/Items" />
+    <scripts src="D:/Gothic Scripts/gothic-2-addon-scripts-Unified-EN/_Work/Data/Scripts/Content/Items" />
 
-	<gothiczen path="D:/Gothic Tools/GothicZEN/GothicZEN.exe" />
+    <gothiczen path="D:/Gothic Tools/GothicZEN/GothicZEN.exe" />
 </config>
 ```
 
+## Typical usage order (recommended)
 
-# Features
-## Scan Broken Instances
-Check all broken oCItem blocks in the ZEN file (or files) and store them in `zenfix_instances`.
+1. **Scan Broken Instances (all ZENs)**
+2. **Prompt Replacements (all lists)**
+3. **Fix All Blocks (all ZENs)**
+4. Optional: run **Check Containers** and **Check Chest Visuals**
+5. Optional: run **Count zCVob Visual Usage** for visual audits
 
-## Prompt Replacement
-Read the broken instances for chosen ZEN (or all) and write replacement for them, then store them in `zenfix_instances`.
-
-## Fix Blocks
-Fix instance blocks for chosen ZEN (or all) with the replacements done in Prompt Replacement.
-
-## Batch Fix
-Do all the above for every ZEN file in `zenfix_input` in one go.
-
-## Check Containers
-Check all containers for chosen ZEN (or all), cross-reference the instances with your scripts and fix the wrong instances. This does not impact amount of items in containers.
-
-## Check Chest Visuals
-Check all containers for chosen ZEN to look for chests with mismatched visuals (LOCKED chest for unlocked container and vice versa) or chests which keyInstance or pickLockStr fields are empty, making them unable to be opened.
-
-## Convert ZEN
-GothicZEN can convert a compiled ZEN to another Gothic version, or remove LOD polygons when saving to the same version
-
-## Validate Scripts
-Debug function, checks if the app actually has access to the item instances from Daedalus scripts.
+If you prefer one-click processing, use **Batch Fix**.
