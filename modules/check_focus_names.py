@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from colorama import Fore
 
-from utils.config_loader import load_script_path
+from utils.config_loader import load_focusname_prefixes, load_script_path
 from utils.file_utils import get_user_selection, list_files
 from utils.log_utils import log
 
@@ -199,3 +199,67 @@ def check_focus_names_all():
     check_repeats = _ask_repeat_check_enabled()
     for file_name in files:
         check_focus_names_for_zen(os.path.join(INPUT_FOLDER, file_name), valid_tokens, check_repeats)
+
+
+def _write_prefix_duplicate_report(report_path, prefixes, duplicates):
+    lines = ["Configured focusName prefix duplicate report", ""]
+    lines.append("Configured prefixes:")
+    if prefixes:
+        for prefix in prefixes:
+            lines.append(f"  - {prefix}")
+    else:
+        lines.append("  - <none>")
+
+    lines.append("")
+
+    if not duplicates:
+        lines.append("No duplicates found for configured prefixes.")
+    else:
+        lines.append("Duplicate focusName values:")
+        for focus_name, occurrences in sorted(duplicates.items()):
+            lines.append(f"  - {focus_name} (count={len(occurrences)})")
+            for item in occurrences:
+                lines.append(
+                    f"      * file={item['file']} | line={item['line']} | vobName={item['vob_name'] or '<no vobName>'}"
+                )
+    lines.append("")
+
+    with open(report_path, "w", encoding="utf-8") as out:
+        out.write("\n".join(lines) + "\n")
+
+
+def check_mobname_duplicates_by_prefix_all():
+    files = list_files(INPUT_FOLDER, ".zen")
+    if not files:
+        log(Fore.RED + "? No ZEN files in input folder.")
+        return
+
+    prefixes = load_focusname_prefixes()
+    if not prefixes:
+        log(Fore.RED + "? No focusName prefixes configured in config.xml (<focusNamePrefixes list=\"...\" />).")
+        return
+
+    matches = defaultdict(list)
+
+    for file_name in files:
+        zen_path = os.path.join(INPUT_FOLDER, file_name)
+        entries = _extract_omob_focus_entries(zen_path)
+        for focus_name, vob_name, line_no in entries:
+            if any(focus_name.startswith(prefix) for prefix in prefixes):
+                matches[focus_name].append({
+                    "file": file_name,
+                    "line": line_no,
+                    "vob_name": vob_name,
+                })
+
+    duplicates = {focus_name: occ for focus_name, occ in matches.items() if len(occ) > 1}
+
+    report_path = os.path.join(OUTPUT_FOLDER, "FocusNamePrefixDuplicatesReport.txt")
+    _write_prefix_duplicate_report(report_path, prefixes, duplicates)
+
+    if duplicates:
+        log(Fore.YELLOW + f"?? Found {len(duplicates)} duplicated focusName values for configured prefixes.")
+    else:
+        log(Fore.GREEN + "? No duplicated focusName values found for configured prefixes.")
+
+    log(Fore.GREEN + f"?? Report saved: {report_path}")

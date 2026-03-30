@@ -26,6 +26,25 @@ def load_script_path():
         print(Fore.RED + f"❌ XML parse error: {e}")
     return None
 
+def load_focusname_prefixes():
+    if not os.path.exists(CONFIG_PATH):
+        return []
+
+    try:
+        tree = ET.parse(CONFIG_PATH)
+        root = tree.getroot()
+    except ET.ParseError as e:
+        print(Fore.RED + f"❌ XML parse error: {e}")
+        return []
+
+    prefixes_tag = root.find("focusNamePrefixes")
+    if prefixes_tag is None:
+        return []
+
+    raw = prefixes_tag.get("list", "")
+    prefixes = [item.strip() for item in raw.split(",") if item.strip()]
+    return prefixes
+
 def load_gothiczen_path():
     import xml.etree.ElementTree as ET
     CONFIG_PATH = "config.xml"
@@ -35,4 +54,3 @@ def load_gothiczen_path():
     root = tree.getroot()
     tool = root.find("gothiczen")
     return tool.get("path") if (tool is not None and tool.get("path")) else ""
-

@@ -67,6 +67,9 @@ The tool auto-creates these folders on startup:
 - **Check oCMOB focusName**
   - Validates `focusName=string:` values in `oCMOB` blocks against loaded script tokens and writes a report to `zenfix_output`.
   - Optional repeat-family check flags variants such as `MOBNAME_GRAVE*` (e.g. `MOBNAME_GRAVE`, `MOBNAME_GRAVE_01`, `MOBNAME_GRAVEA`).
+- **Check MOBNAME duplicates by configured prefixes (all ZENs)**
+  - Scans all input ZENs for duplicated `focusName` values that start with configured prefixes from `config.xml` (`<focusNamePrefixes list="..." />`).
+  - Writes a consolidated report to `zenfix_output/FocusNamePrefixDuplicatesReport.txt`.
 - **Count zCVob Visual Usage**
   - Counts `zCVob` `visual=string:` usage where `showVisual=1`, with optional visual-name filtering, and writes a report to `zenfix_output`.
 
@@ -80,6 +83,7 @@ The tool auto-creates these folders on startup:
 The tool reads paths from `config.xml`:
 
 - `scripts src="..."` for Daedalus script item validation.
+- `focusNamePrefixes list="PREFIX1,PREFIX2,..."` for cross-file duplicate checks limited to chosen `focusName` prefixes.
 - `gothiczen path="..."` for ZEN conversion support.
 
 Example:
@@ -87,6 +91,8 @@ Example:
 ```xml
 <config>
     <scripts src="D:/Gothic Scripts/gothic-2-addon-scripts-Unified-EN/_Work/Data/Scripts/Content/Items" />
+
+    <focusNamePrefixes list="MOBNAME_GRAVE,MOBNAME_CHEST" />
 
     <gothiczen path="D:/Gothic Tools/GothicZEN/GothicZEN.exe" />
 </config>
