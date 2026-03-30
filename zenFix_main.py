@@ -7,6 +7,7 @@ from modules.check_chest_visuals import check_chest_visuals_single
 from modules.check_containers import check_all_containers, validate_container_entries
 from modules.convert_zen import convert_zen
 from modules.count_vob_visuals import count_vob_visuals_single
+from modules.check_focus_names import check_focus_names_all, check_focus_names_single
 from modules.fix_blocks import apply_fix, fix_all_blocks_multi, fix_selected_block
 from modules.prompt_replacements import load_fix_map, prompt_replacements
 from modules.scan_broken_instances import scan_broken_instances
@@ -164,8 +165,11 @@ def show_main_menu():
     print(" [14] Count zCVob Visual Usage")
     print(Fore.LIGHTYELLOW_EX + " [15] Validate Scripts")
 
+    print(" [16] Check oCMOB focusName (single ZEN)")
+    print(" [17] Check oCMOB focusName (all ZENs)")
+
     print(Fore.LIGHTWHITE_EX + "\n -- Conversion --")
-    print(" [16] Convert ZEN between Gothic versions")
+    print(" [18] Convert ZEN between Gothic versions")
 
 
 def main():
@@ -192,7 +196,9 @@ def main():
         13: lambda: run_action(check_chest_visuals_single),
         14: lambda: run_action(count_vob_visuals_single),
         15: lambda: _validate_scripts(script_path),
-        16: lambda: run_action(convert_zen),
+        16: lambda: run_action(check_focus_names_single),
+        17: lambda: run_action(check_focus_names_all),
+        18: lambda: run_action(convert_zen),
     }
 
     while True:

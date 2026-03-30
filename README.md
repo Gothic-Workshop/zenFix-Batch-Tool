@@ -64,6 +64,9 @@ The tool auto-creates these folders on startup:
   - Validates `contains=string:` entries, cross-checks instances against loaded scripts, prompts fixes, and rewrites corrected files.
 - **Check Chest Visuals**
   - Detects chest visual/lock mismatches and missing lock/key data that can make containers unopenable.
+- **Check oCMOB focusName**
+  - Validates `focusName=string:` values in `oCMOB` blocks against loaded script tokens and writes a report to `zenfix_output`.
+  - Optional repeat-family check flags variants such as `MOBNAME_GRAVE*` (e.g. `MOBNAME_GRAVE`, `MOBNAME_GRAVE_01`, `MOBNAME_GRAVEA`).
 - **Count zCVob Visual Usage**
   - Counts `zCVob` `visual=string:` usage where `showVisual=1`, with optional visual-name filtering, and writes a report to `zenfix_output`.
 
