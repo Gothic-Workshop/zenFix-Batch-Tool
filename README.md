@@ -5,7 +5,7 @@ It helps with routine modding cleanup: scanning invalid item instances, preparin
 
 ## Requirements
 
-- Python 3.10+ recommended
+- Python 3.11+ recommended (uses built-in `tomllib`)
 - Dependencies:
   - `pyfiglet`
   - `colorama`
@@ -19,19 +19,19 @@ pip install pyfiglet colorama
 ## Quick start
 
 1. Run `python zenFix_main.py`.
-2. Put **uncompiled** `.ZEN` files into `zenfix_input`.
+2. Put **uncompiled** `.ZEN` files into `zenFix_Input` (or change `[directories].input` in `config.toml`).
 3. Use the menu options to scan, generate replacements, and apply fixes.
-4. Collect outputs from `zenfix_output` and generated fix/list files from `zenfix_instances`.
+4. Collect outputs from `zenFix_Output` and generated fix/list files from `zenFix_Instances` (or use your configured directories).
 
 ## Generated folders
 
 The tool auto-creates these folders on startup:
 
-- `zenfix_input` – source ZEN files
-- `zenfix_output` – processed and converted output files
-- `zenfix_instances` – broken instance lists and replacement maps
-- `zenfix_broken` – auxiliary files for broken data workflows
-- `zenfix_log` – action logs
+- `zenFix_Input` ? source ZEN files
+- `zenFix_Output` ? processed and converted output files
+- `zenFix_Instances` ? broken instance lists and replacement maps
+- `zenFix_Broken` ? auxiliary files for broken data workflows
+- `zenFix_Log` ? action logs
 
 ## Feature overview (all menu actions)
 
@@ -45,7 +45,7 @@ The tool auto-creates these folders on startup:
 ### Instance discovery and replacement mapping
 
 - **Scan Broken Instances (single ZEN / all ZENs)**
-  - Scans `oCItem` blocks and writes broken instance names into `*_instanceList.txt` files in `zenfix_instances`.
+  - Scans `oCItem` blocks and writes broken instance names into `*_instanceList.txt` files in the configured instances directory.
 - **Prompt Replacements (single list / all lists)**
   - Opens previously generated `*_instanceList.txt`, asks for replacements, and writes `*_instanceFix.txt` maps.
 
@@ -65,37 +65,53 @@ The tool auto-creates these folders on startup:
 - **Check Chest Visuals**
   - Detects chest visual/lock mismatches and missing lock/key data that can make containers unopenable.
 - **Check oCMOB focusName**
-  - Validates `focusName=string:` values in `oCMOB` blocks against loaded script tokens and writes a report to `zenfix_output`.
+  - Validates `focusName=string:` values in `oCMOB` blocks against loaded script tokens and writes a report to the configured output directory.
   - Optional repeat-family check flags variants such as `MOBNAME_GRAVE*` (e.g. `MOBNAME_GRAVE`, `MOBNAME_GRAVE_01`, `MOBNAME_GRAVEA`).
 - **Check MOBNAME duplicates by configured prefixes (all ZENs)**
-  - Scans all input ZENs for duplicated `focusName` values that start with configured prefixes from `config.xml` (`<focusNamePrefixes list="..." />`).
-  - Writes a consolidated report to `zenfix_output/FocusNamePrefixDuplicatesReport.txt`.
+  - Scans all input ZENs for duplicated `focusName` values that start with configured prefixes from `config.toml` (`[focus].name_prefixes`).
+  - Writes a consolidated report to `<output>/FocusNamePrefixDuplicatesReport.txt`.
 - **Count zCVob Visual Usage**
-  - Counts `zCVob` `visual=string:` usage where `showVisual=1`, with optional visual-name filtering, and writes a report to `zenfix_output`.
+  - Counts `zCVob` `visual=string:` usage where `showVisual=1`, with optional visual-name filtering, and writes a report to the configured output directory.
 
 ### Conversion
 
 - **Convert ZEN between Gothic versions**
   - Uses GothicZEN to convert compiled ZEN files between Gothic versions.
 
-## Config (`config.xml`)
+## Config (`config.toml`)
 
-The tool reads paths from `config.xml`:
+The tool now uses a layered TOML configuration with defaults and optional feature toggles:
 
-- `scripts src="..."` for Daedalus script item validation.
-- `focusNamePrefixes list="PREFIX1,PREFIX2,..."` for cross-file duplicate checks limited to chosen `focusName` prefixes.
-- `gothiczen path="..."` for ZEN conversion support.
+- `[paths]` for external tools/scripts (`scripts`, `gothiczen`).
+- `[features]` to enable/disable menu workflows (`batch_fix`, `container_check`, `chest_validation`, etc.).
+- `[focus]` and `[chests.visual_map]` for rule lists and mappings.
+- `[directories]`, `[validation]`, `[history]`, and `[logging]` for runtime behavior.
+
+`chest_visual_map.json` has been folded into `[chests.visual_map]` in `config.toml`.
 
 Example:
 
-```xml
-<config>
-    <scripts src="D:/Gothic Scripts/gothic-2-addon-scripts-Unified-EN/_Work/Data/Scripts/Content/Items" />
+```toml
+[paths]
+scripts = "D:/Gothic Scripts/.../Content/Items"
+gothiczen = "D:/Gothic Tools/GothicZEN/GothicZEN.exe"
 
-    <focusNamePrefixes list="MOBNAME_GRAVE,MOBNAME_CHEST" />
+[focus]
+name_prefixes = ["MOBNAME_GRAVE", "MOBNAME_CHEST"]
 
-    <gothiczen path="D:/Gothic Tools/GothicZEN/GothicZEN.exe" />
-</config>
+[chests]
+validate_visuals = true
+auto_fix_wrong_locked_visuals = false
+
+[chests.visual_map]
+CHESTBIG_OCCHESTLARGELOCKED.MDS = "CHESTBIG_OCCHESTLARGE.MDS"
+
+[directories]
+input = "zenFix_Input"
+output = "zenFix_Output"
+instances = "zenFix_Instances"
+broken = "zenFix_Broken"
+logs = "zenFix_Log"
 ```
 
 ## Typical usage order (recommended)

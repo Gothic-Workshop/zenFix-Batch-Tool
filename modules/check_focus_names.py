@@ -4,16 +4,16 @@ from collections import defaultdict
 
 from colorama import Fore
 
-from utils.config_loader import load_focusname_prefixes, load_script_path
+from utils.config_loader import load_directories, load_focusname_prefixes, load_script_path
 from utils.file_utils import get_user_selection, list_files
 from utils.log_utils import log
 
-INPUT_FOLDER = "zenfix_input"
-OUTPUT_FOLDER = "zenfix_output"
+DIRECTORIES = load_directories()
+INPUT_FOLDER = DIRECTORIES["input"]
+OUTPUT_FOLDER = DIRECTORIES["output"]
 
 FOCUS_LINE_PREFIX = "focusName=string:"
 VOB_LINE_PREFIX = "vobName=string:"
-
 
 def _load_focus_tokens_from_scripts(script_path):
     """Load identifier-like tokens from all .d files under the configured script folder."""
@@ -236,7 +236,7 @@ def check_mobname_duplicates_by_prefix_all():
 
     prefixes = load_focusname_prefixes()
     if not prefixes:
-        log(Fore.RED + "? No focusName prefixes configured in config.xml (<focusNamePrefixes list=\"...\" />).")
+        log(Fore.RED + "? No focusName prefixes configured in config.toml ([focus].name_prefixes).")
         return
 
     matches = defaultdict(list)

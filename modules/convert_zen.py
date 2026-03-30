@@ -1,12 +1,13 @@
 import os
 import subprocess
-from utils.config_loader import load_gothiczen_path
+from utils.config_loader import load_directories, load_gothiczen_path
 from utils.file_utils import list_files, get_user_selection
 from utils.log_utils import log
 from colorama import Fore
 
-INPUT_FOLDER = "zenfix_input"
-OUTPUT_FOLDER = "zenfix_output"
+DIRECTORIES = load_directories()
+INPUT_FOLDER = DIRECTORIES["input"]
+OUTPUT_FOLDER = DIRECTORIES["output"]
 
 VERSIONS = {
     "1": ("101", "Gothic 1 Demo"),

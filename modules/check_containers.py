@@ -6,9 +6,12 @@ from utils.file_utils import write_lines
 from utils.log_utils import log
 from modules.prompt_replacements import prompt_replacements, load_fix_map
 
-INPUT_FOLDER = "zenfix_input"
-OUTPUT_FOLDER = "zenfix_output"
-INSTANCE_FOLDER = "zenfix_instances"
+from utils.config_loader import load_directories
+
+DIRECTORIES = load_directories()
+INPUT_FOLDER = DIRECTORIES["input"]
+OUTPUT_FOLDER = DIRECTORIES["output"]
+INSTANCE_FOLDER = DIRECTORIES["instances"]
 
 def parse_contains_line(line):
     raw = line.split("contains=string:")[1].strip()

@@ -15,23 +15,17 @@ from modules.check_focus_names import (
 from modules.fix_blocks import apply_fix, fix_all_blocks_multi, fix_selected_block
 from modules.prompt_replacements import load_fix_map, prompt_replacements
 from modules.scan_broken_instances import scan_broken_instances
-from utils.config_loader import load_script_path
+from utils.config_loader import load_directories, load_feature_flags, load_script_path
 from utils.file_utils import get_user_selection, list_files
 from utils.item_validator import scan_valid_items
 from utils.log_utils import log, save_log
 from utils.menu_utils import clear_screen, pause, print_about_info, print_title
 from utils.run_action import run_action
 
-FOLDERS = {
-    "input": "zenfix_input",
-    "output": "zenfix_output",
-    "instances": "zenfix_instances",
-    "broken": "zenfix_broken",
-    "log": "zenfix_log",
-}
+FOLDERS = load_directories()
+FEATURES = load_feature_flags()
 
 init(autoreset=True)
-
 
 def ensure_folders():
     for path in FOLDERS.values():
@@ -160,12 +154,15 @@ def show_main_menu():
     print(" [7] Fix Specific Instance (all ZENs)")
     print(" [8] Fix All Blocks (single ZEN)")
     print(" [9] Fix All Blocks (all ZENs)")
-    print(" [10] Batch Fix (scan + prompt + fix)")
+    if FEATURES.get("batch_fix", True):
+        print(" [10] Batch Fix (scan + prompt + fix)")
 
     print(Fore.LIGHTWHITE_EX + "\n -- Validation & Analysis --")
-    print(" [11] Check Containers (single ZEN)")
-    print(" [12] Check Containers (all ZENs)")
-    print(" [13] Check Chest Visuals")
+    if FEATURES.get("container_check", True):
+        print(" [11] Check Containers (single ZEN)")
+        print(" [12] Check Containers (all ZENs)")
+    if FEATURES.get("chest_validation", True):
+        print(" [13] Check Chest Visuals")
     print(" [14] Count zCVob Visual Usage")
 
     print(Fore.LIGHTYELLOW_EX + " [15] Validate Scripts")
@@ -195,10 +192,10 @@ def main():
         7: lambda: run_action(_fix_specific_multi),
         8: lambda: run_action(fix_selected_block),
         9: lambda: run_action(fix_all_blocks_multi),
-        10: lambda: run_action(batch_fix),
-        11: lambda: run_action(_container_check_single),
-        12: lambda: run_action(check_all_containers),
-        13: lambda: run_action(check_chest_visuals_single),
+        #10: lambda: run_action(batch_fix),
+        #11: lambda: run_action(_container_check_single),
+        #12: lambda: run_action(check_all_containers),
+        #13: lambda: run_action(check_chest_visuals_single),
         14: lambda: run_action(count_vob_visuals_single),
         15: lambda: _validate_scripts(script_path),
         16: lambda: run_action(check_focus_names_single),
@@ -206,6 +203,14 @@ def main():
         18: lambda: run_action(check_mobname_duplicates_by_prefix_all),
         19: lambda: run_action(convert_zen),
     }
+
+    if FEATURES.get("batch_fix", True):
+        actions[10] = lambda: run_action(batch_fix)
+    if FEATURES.get("container_check", True):
+        actions[11] = lambda: run_action(_container_check_single)
+        actions[12] = lambda: run_action(check_all_containers)
+    if FEATURES.get("chest_validation", True):
+        actions[13] = lambda: run_action(check_chest_visuals_single)
 
     while True:
         show_main_menu()

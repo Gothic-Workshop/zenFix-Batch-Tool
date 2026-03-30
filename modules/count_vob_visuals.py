@@ -5,10 +5,11 @@ from colorama import Fore
 
 from utils.file_utils import list_files, get_user_selection
 from utils.log_utils import log
+from utils.config_loader import load_directories
 
-INPUT_FOLDER = "zenfix_input"
-OUTPUT_FOLDER = "zenfix_output"
-
+DIRECTORIES = load_directories()
+INPUT_FOLDER = DIRECTORIES["input"]
+OUTPUT_FOLDER = DIRECTORIES["output"]
 
 def _normalize_visual_filters(raw_input):
     values = [v.strip() for v in raw_input.split(",") if v.strip()]

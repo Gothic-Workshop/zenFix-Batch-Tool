@@ -5,7 +5,10 @@ from utils.file_utils import list_files, get_user_selection
 from utils.log_utils import log, log_action
 from modules.prompt_replacements import load_fix_map
 
-OUTPUT_FOLDER = "zenfix_output"
+from utils.config_loader import load_directories
+
+FOLDERS = load_directories()
+OUTPUT_FOLDER = FOLDERS["output"]
 
 FOLDERS = {
     "input": "zenfix_input",

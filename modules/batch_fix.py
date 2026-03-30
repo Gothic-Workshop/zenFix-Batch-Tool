@@ -1,7 +1,7 @@
 
 import os
 from colorama import Fore
-from utils.config_loader import load_script_path
+from utils.config_loader import load_directories, load_script_path
 from utils.item_validator import scan_valid_items, validate_item
 from utils.file_utils import write_lines
 from utils.log_utils import log, log_action
@@ -9,9 +9,10 @@ from modules.prompt_replacements import prompt_replacements
 from modules.fix_blocks import apply_fix
 from modules.scan_broken_instances import find_broken_instances
 
-INPUT_FOLDER = "zenfix_input"
-OUTPUT_FOLDER = "zenfix_output"
-INSTANCE_FOLDER = "zenfix_instances"
+DIRECTORIES = load_directories()
+INPUT_FOLDER = DIRECTORIES["input"]
+OUTPUT_FOLDER = DIRECTORIES["output"]
+INSTANCE_FOLDER = DIRECTORIES["instances"]
 
 def batch_fix():
     os.makedirs(INSTANCE_FOLDER, exist_ok=True)

@@ -4,8 +4,10 @@ from datetime import datetime
 import re
 from colorama import Fore
 
+from utils.config_loader import load_config
+
 LOG_LINES = []
-LOG_FOLDER = "zenfix_log"
+LOG_FOLDER = load_config().get("directories", {}).get("logs", "zenFix_Log")
 
 def log(line):
     print(line)
